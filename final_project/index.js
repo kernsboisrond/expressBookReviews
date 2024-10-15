@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session')
 const customer_routes = require('./router/auth_users.js').authenticated;
 const genl_routes = require('./router/general.js').general;
+//JWTsecret definition
+const jwtSecret = "your-very-secure-secret"; // Make sure this is a strong secret!
+
 
 const app = express();
 
@@ -17,18 +20,22 @@ app.use("/customer/auth/*", function auth(req, res, next) {
         return res.status(403).json({ message: "No token provided" });
     }
 
-    jwt.verify(token, "your-secret-key", (err, decoded) => {
+    const bearerToken = token.split(" ")[1]; // Split out 'Bearer' from the actual token
+
+    jwt.verify(bearerToken, jwtSecret, (err, decoded) => {
         if (err) {
             return res.status(500).json({ message: "Failed to authenticate token" });
         }
         
-        req.userId = decoded.id;
+        req.userId = decoded.username; // Use decoded username from the token
         next();
     });
 });
 
+
+
  
-const PORT =5000;
+const PORT =4000;
 
 
 
